@@ -8,7 +8,7 @@ Proyecto académico de desarrollo full stack. La tienda usa Django REST Framewor
 |---|---|---|
 | **1 · Django en Fedora** | Landing, catálogo con fotos, búsqueda y orden por precio. Registro, inicio de sesión, perfil y roles de cliente y administrador. Carrito, dirección de entrega, confirmación de compra e historial. CRUD, API REST y persistencia en SQLite verificados. | Parte 1 terminada. Las instrucciones de evidencia están en la [guía de capturas](PARTE_1_CAPTURAS.md). |
 | **2 · Unity y Vuforia en Windows** | Dos marcadores PNG y un script C# que genera los modelos de teclado y laptop, muestra u oculta el modelo según el seguimiento y consulta la API para obtener nombre y precio. | Montar la escena, configurar Vuforia y probar la cámara. Luego verificar la conexión Windows–Fedora. |
-| **3 · Hugging Face en Fedora** | Formulario de carga e integración con ViT para mostrar etiquetas, confianza y productos relacionados. El flujo se verificó con una respuesta simulada. | Configurar `HF_TOKEN` y verificar una clasificación real. |
+| **3 · Hugging Face en Fedora** | Carga de fotos, clasificación real con MobileNetV2 de Hugging Face en Fedora y resultados con confianza y productos relacionados. | Tomar las capturas de sustentación. |
 
 El checkout se verificó con **pago simulado**. Stripe Checkout está integrado en modo de prueba y requiere credenciales de prueba para verificarlo con Stripe.
 
@@ -40,16 +40,20 @@ Las operaciones de escritura en productos requieren personal autorizado. La inte
 
 ## Clasificación de imágenes
 
-Crea un [token de Hugging Face](https://huggingface.co/settings/tokens) con permiso para realizar llamadas a Inference Providers. En Bash, antes de iniciar Django, carga el token sin escribirlo en el historial:
+SmartTech ejecuta en Fedora [MobileNetV2 de Hugging Face](https://huggingface.co/onnxmodelzoo/mobilenetv2-12) con ONNX Runtime y CPU. La descarga inicial requiere internet. La clasificación local funciona después sin token y sin enviar la foto fuera de Fedora.
 
 ```bash
-read -rsp 'Token de Hugging Face: ' HF_TOKEN
-export HF_TOKEN
-printf '\n'
-python manage.py runserver
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python manage.py download_vision_model
+python manage.py runserver 8001
 ```
 
-Ingresa a la tienda y sube una foto de un teclado, mouse o laptop en **Analizar imagen**. Django valida y redimensiona la foto, la envía a [ViT en Hugging Face](https://huggingface.co/google/vit-base-patch16-224) y devuelve hasta tres etiquetas con su puntuación cuando está disponible. Compara las etiquetas con el campo **Etiquetas de IA** de los productos visibles. El resultado sugiere productos de la misma clase visual.
+Para la demostración, entra a [Analizar imagen](http://127.0.0.1:8001/#analizar) con una cuenta de cliente. Descarga la foto de prueba del mouse desde esa sección, selecciónala y pulsa **Analizar foto**. Captura la foto seleccionada y luego el resultado con el modelo, las etiquetas, sus porcentajes y **Mouse inalámbrico** como producto relacionado.
+
+Django recibe la imagen en `POST /api/classify/`, valida el formato y el tamaño, devuelve las tres predicciones de mayor puntuación y compara sus etiquetas con las de los productos activos. Las coincidencias identifican una clase visual. El valor de confianza corresponde al puntaje del modelo.
+
+Opcionalmente, si el servidor tiene `HF_TOKEN` configurado, Django usa el servicio alojado de Hugging Face y el [modelo ViT](https://huggingface.co/google/vit-base-patch16-224).
 
 ## Realidad aumentada en Windows
 

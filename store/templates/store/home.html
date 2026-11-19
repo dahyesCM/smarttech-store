@@ -58,7 +58,9 @@
           <input id="image" type="file" name="image" aria-label="Foto del producto" accept="image/jpeg,image/png,image/webp" required>
           <button class="button" type="submit">Analizar foto</button>
         </form>
+        <p><a href="{% static 'store/photos/mouse.jpg' %}" download="mouse-prueba.jpg">Descargar foto de prueba</a></p>
         <p id="vision-status" role="status"></p>
+        <p id="vision-model" hidden></p>
         <ul id="predictions" class="result-list" aria-label="Clasificación"></ul>
         <ul id="matches" class="result-list" aria-label="Coincidencias del catálogo"></ul>
       {% else %}

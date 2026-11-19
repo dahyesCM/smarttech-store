@@ -49,13 +49,17 @@ if (vision) {
   const status = document.querySelector("#vision-status");
   const predictions = document.querySelector("#predictions");
   const matches = document.querySelector("#matches");
+  const model = document.querySelector("#vision-model");
   handleForm(vision, status, async () => {
     predictions.replaceChildren();
     matches.replaceChildren();
+    model.hidden = true;
     const data = await post(vision);
     status.textContent = data.products.length
       ? "Productos relacionados en el catálogo"
       : "La clasificación no encontró coincidencias en el catálogo.";
+    model.textContent = `Modelo de Hugging Face · ${data.model}`;
+    model.hidden = false;
     renderRows(predictions, data.predictions.map(({ label, score }) =>
       Number.isFinite(score) ? `${label} · ${(score * 100).toFixed(1)} %` : label
     ));

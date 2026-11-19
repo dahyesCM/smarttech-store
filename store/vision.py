@@ -9,6 +9,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from . import local_vision
 from .api import ProductSerializer
 from .models import Product
 
@@ -30,29 +31,33 @@ def classify(request):
                 return Response({"detail": "Usa JPEG, PNG o WebP de hasta 16 megapíxeles."}, status=400)
             image = ImageOps.exif_transpose(image).convert("RGB")
             image.thumbnail((768, 768))
-            payload = io.BytesIO()
-            image.save(payload, format="JPEG")
+
     except (UnidentifiedImageError, Image.DecompressionBombError, OSError, ValueError):
         return Response({"detail": "El archivo no se pudo leer como imagen."}, status=400)
 
     token = os.environ.get("HF_TOKEN")
-    if not token:
-        return Response({"detail": "Configura HF_TOKEN en el servidor para activar el análisis."}, status=503)
-
+    model = MODEL if token else local_vision.MODEL
     try:
-        result = requests.post(
-            MODEL_URL, data=payload.getvalue(), timeout=(5, 45),
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "image/jpeg"},
-        )
-        result.raise_for_status()
-        predictions = result.json()
+        if token:
+            payload = io.BytesIO()
+            image.save(payload, format="JPEG")
+            result = requests.post(
+                MODEL_URL, data=payload.getvalue(), timeout=(5, 45),
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "image/jpeg"},
+            )
+            result.raise_for_status()
+            predictions = result.json()
+        else:
+            predictions = local_vision.predict(image)
         if not isinstance(predictions, list) or not all(
             isinstance(item, dict) and isinstance(item.get("label"), str) for item in predictions
         ):
             raise ValueError("Formato inesperado")
-    except (requests.RequestException, ValueError):
-        logger.warning("No se obtuvo una respuesta válida de Hugging Face", exc_info=True)
-        return Response({"detail": "Hugging Face no respondió correctamente. Inténtalo de nuevo."}, status=502)
+    except (FileNotFoundError, ImportError):
+        return Response({"detail": "Instala las dependencias y ejecuta python manage.py download_vision_model."}, status=503)
+    except Exception:
+        logger.exception("Falló la clasificación de imágenes con %s", model)
+        return Response({"detail": "No se pudo clasificar la imagen. Inténtalo de nuevo."}, status=502)
 
     labels = {
         label.strip().casefold()
@@ -63,5 +68,5 @@ def classify(request):
         product for product in Product.objects.filter(active=True).exclude(ai_labels="")
         if labels.intersection(label.strip().casefold() for label in product.ai_labels.split(","))
     ]
-    return Response({"model": MODEL, "predictions": predictions[:3],
+    return Response({"model": model, "predictions": predictions[:3],
                      "products": ProductSerializer(matches, many=True).data})
