@@ -55,7 +55,11 @@ public class SmartTechAugmentation : MonoBehaviour
         {
             request.timeout = 8;
             yield return request.SendWebRequest();
+#if UNITY_2020_2_OR_NEWER
             if (request.result == UnityWebRequest.Result.Success)
+#else
+            if (!request.isNetworkError && !request.isHttpError)
+#endif
             {
                 var product = JsonUtility.FromJson<Product>(request.downloadHandler.text);
                 caption = product.name + " · S/ " + product.price;

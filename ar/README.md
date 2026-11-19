@@ -1,5 +1,14 @@
 # SmartTech AR en Unity para Windows
 
+## Abrir la escena base en Unity 2018.1
+
+En Unity Hub, elige **Add → Add project from disk** y selecciona esta carpeta `ar`. Abre el proyecto con **Unity 2018.1.9f2**. En el panel **Project**, abre **Assets → Scenes → SampleScene**. La escena base contiene una cámara y una luz direccional.
+
+Para probar Vuforia integrado, agrega **GameObject → Vuforia → AR Camera**, desactiva `Main Camera` y configura tu licencia localmente. El montaje del marcador y los eventos en Unity 2018.1 requiere la base de datos y el controlador de seguimiento de esa versión.
+
+## Montaje con Vuforia moderno
+
+
 1. Instala Unity Hub y un Unity Editor compatible con la versión del SDK que elijas según la [guía de Vuforia para Unity](https://developer.vuforia.com/library/vuforia-engine/getting-started/development-environments/getting-started-vuforia-engine-unity/). Crea un proyecto **3D** con el pipeline integrado.
 2. Importa el [paquete de Vuforia Engine](https://developer.vuforia.com/library/vuforia-engine/unity-extension/vuforia-engine-package-unity/) y copia `Assets/SmartTech` de esta carpeta dentro de `Assets` en tu proyecto.
 3. Elimina **Main Camera**, agrega **AR Camera** desde el menú de Vuforia y configura tu licencia en **Vuforia Configuration**. Mantén una luz direccional para los modelos.
