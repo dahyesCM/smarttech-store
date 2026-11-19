@@ -1,6 +1,16 @@
 # SmartTech Store
 
-Catálogo y pedidos en Django con SQLite, clasificación de imágenes con Hugging Face y visualización de productos con Unity y Vuforia. La interfaz usa plantillas HTML, CSS y JavaScript.
+Proyecto académico de desarrollo full stack. La tienda usa Django REST Framework y SQLite en Fedora, con un frontend en HTML, CSS y JavaScript. La demostración integra gestión de pedidos, realidad aumentada en Unity y clasificación de imágenes.
+
+## Estado del proyecto
+
+| Parte | Qué hicimos | Qué queda |
+|---|---|---|
+| **1 · Django en Fedora** | Landing, catálogo con fotos, búsqueda y orden por precio. Registro, inicio de sesión, perfil y roles de cliente y administrador. Carrito, dirección de entrega, confirmación de compra e historial. CRUD, API REST y persistencia en SQLite verificados. | Parte 1 terminada. Las instrucciones de evidencia están en la [guía de capturas](PARTE_1_CAPTURAS.md). |
+| **2 · Unity y Vuforia en Windows** | Dos marcadores PNG y un script C# que genera los modelos de teclado y laptop, muestra u oculta el modelo según el seguimiento y consulta la API para obtener nombre y precio. | Montar la escena, configurar Vuforia y probar la cámara. Luego verificar la conexión Windows–Fedora. |
+| **3 · Hugging Face en Fedora** | Formulario de carga e integración con ViT para mostrar etiquetas, confianza y productos relacionados. El flujo se verificó con una respuesta simulada. | Configurar `HF_TOKEN` y verificar una clasificación real. |
+
+El checkout se verificó con **pago simulado**. Stripe Checkout está integrado en modo de prueba y requiere credenciales de prueba para verificarlo con Stripe.
 
 ## Django en Fedora
 
@@ -43,15 +53,47 @@ Ingresa a la tienda y sube una foto de un teclado, mouse o laptop en **Analizar 
 
 ## Realidad aumentada en Windows
 
-Los archivos de integración están en [ar](ar/README.md). Incluyen modelos 3D procedurales y el cliente que consulta el catálogo de Django. Los marcadores se descargan desde **Realidad aumentada** en la tienda.
+Empieza por [la guía de montaje](ar/README.md). El repositorio incluye estos recursos:
 
-Para que Windows acceda a Fedora por la red local, identifica la IP de Fedora y configura el servidor de desarrollo. Sustituye el ejemplo por la IP real:
+- [SmartTechAugmentation.cs](ar/Assets/SmartTech/SmartTechAugmentation.cs) con los modelos 3D y el cliente de la API.
+- [Marcador del teclado](store/static/store/smarttech-marker.png) y [marcador de la laptop](store/static/store/laptop-marker.png).
+
+Copia la carpeta `ar/Assets/SmartTech` dentro de `Assets` en el proyecto de Unity. Monta primero una escena con el teclado. El criterio de éxito es que el teclado aparezca al mostrar el marcador a la cámara y se oculte al retirarlo. Luego agrega la laptop.
+
+En la prueba previa, Django respondió en Fedora por `10.0.2.15:8001`, pero el navegador de Windows rechazó la conexión. Si Fedora sigue en VirtualBox con NAT y Windows es el anfitrión, configura el reenvío TCP de `127.0.0.1:8001` en Windows al puerto `8001` de Fedora. Mantén la VM y Django encendidos y verifica primero desde Windows `http://127.0.0.1:8001/api/products/teclado/?format=json`. Si devuelve el nombre y el precio, configura `http://127.0.0.1:8001` como **Api Base** en Unity. Si cambia la IP de Fedora, actualiza la regla de VirtualBox.
+
+En Fedora, si necesitas volver a iniciar el servidor para esa prueba:
 
 ```bash
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,192.168.1.25 python manage.py runserver 0.0.0.0:8000
+source .venv/bin/activate
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.15 python manage.py runserver 0.0.0.0:8001
 ```
 
-Comprueba desde Windows que abre `http://192.168.1.25:8000/api/products/teclado/`. Ambas máquinas deben tener conectividad y el puerto 8000 debe estar permitido en la red de demostración. Configura esa misma dirección como **Api Base** en Unity.
+### Prompt para continuar en Codex desde Windows
+
+Clona [el repositorio de SmartTech Store](https://github.com/dahyesCM/smarttech-store) con la cuenta de GitHub que tiene acceso, abre la carpeta clonada en Codex y pega esto:
+
+```text
+Estoy en Windows con Unity abierto y quiero continuar la Parte 2 de
+SmartTech Store. Lee README.md y ar/README.md. La Parte 1 ya funciona
+en Fedora con Django REST Framework y SQLite. El repositorio trae
+SmartTechAugmentation.cs y los dos marcadores PNG para Vuforia.
+Todavía falta montar y verificar la escena con cámara en Windows.
+
+Revisa mi proyecto de Unity y aprovecha lo que ya esté configurado.
+La PC está lenta, así que empieza con una escena ligera para el teclado.
+Configura AR Camera, licencia de Vuforia e Image Target de 0.20 m.
+Selecciona Keyboard en SmartTechAugmentation y conecta On Target Found
+con ShowProduct y On Target Lost con HideProduct. Comprueba en Webcam
+Play Mode que el modelo aparezca sobre el marcador y se oculte al retirarlo.
+Indícame cuándo capturar la configuración y la vista Game para sustentar.
+
+Después agrega la laptop y valida la API. Antes, el navegador de Windows
+rechazó la conexión a Fedora. Verifica primero el JSON del teclado desde
+Windows y configura Api Base cuando la URL responda. Conserva Django en
+Fedora. Cuando la parte de Unity funcione, prepara un commit con la escena
+y los archivos fuente, excluyendo cachés de Unity, credenciales y licencias.
+```
 
 ## Sustentación de la Parte 1
 
