@@ -1,0 +1,17 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block content %}
+<div class="shell auth-layout">
+  <section class="auth-panel">
+    <nav class="account-tabs" aria-label="Acceso a la cuenta">
+      <a href="{% url 'login' %}" {% if request.resolver_match.url_name == 'login' %}aria-current="page"{% endif %}>Ingresar</a>
+      <a href="{% url 'signup' %}" {% if request.resolver_match.url_name == 'signup' %}aria-current="page"{% endif %}>Crear cuenta</a>
+    </nav>
+    {% block account_form %}{% endblock %}
+  </section>
+  <aside class="auth-art">
+    <img src="{% static 'store/photos/teclado.jpg' %}" alt="" width="620" height="420">
+    <div><p>Tu próxima compra empieza aquí.</p></div>
+  </aside>
+</div>
+{% endblock %}

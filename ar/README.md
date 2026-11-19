@@ -1,0 +1,10 @@
+# SmartTech AR en Unity para Windows
+
+1. Instala Unity Hub y un Unity Editor compatible con la versión del SDK que elijas según la [guía de Vuforia para Unity](https://developer.vuforia.com/library/vuforia-engine/getting-started/development-environments/getting-started-vuforia-engine-unity/). Crea un proyecto **3D** con el pipeline integrado.
+2. Importa el [paquete de Vuforia Engine](https://developer.vuforia.com/library/vuforia-engine/unity-extension/vuforia-engine-package-unity/) y copia `Assets/SmartTech` de esta carpeta dentro de `Assets` en tu proyecto.
+3. Elimina **Main Camera**, agrega **AR Camera** desde el menú de Vuforia y configura tu licencia en **Vuforia Configuration**. Mantén una luz direccional para los modelos.
+4. Descarga los dos PNG desde la tienda o cópialos de `store/static/store`. Impórtalos a Unity y crea un [Image Target de tipo From Image](https://developer.vuforia.com/library/vuforia-engine/images-and-objects/image-targets/instant-image-targets/). Asigna el PNG correspondiente a cada target. Nómbralos `SmartTechKeyboard` y `SmartTechLaptop` y fija **Width** en 0.20 m. Imprime cada marcador con ese ancho.
+5. Agrega **Smart Tech Augmentation** a cada Image Target y selecciona **Keyboard** o **Laptop** según corresponda. Fija **Target Width Meters** en 0.20 y **Api Base** a la URL de Django en Fedora. En **Default Observer Event Handler**, agrega el mismo componente como receptor de **On Target Found → ShowProduct** y **On Target Lost → HideProduct**. Para la demostración con marcador, usa el filtro de estado **Tracked** si está disponible.
+6. Selecciona [Webcam en Play Mode](https://developer.vuforia.com/library/vuforia-engine/unity-extension/vuforia-play-mode-unity/) y abre la vista **Game**. Muestra un marcador a la vez. Comprueba que aparece el modelo y que la etiqueta muestra el nombre y precio de Django. Retira el marcador para comprobar que el modelo se oculta.
+
+La escena, la licencia y la prueba de cámara se completan en Unity para Windows. El script usa los SKU `teclado` y `laptop` del catálogo de demostración.

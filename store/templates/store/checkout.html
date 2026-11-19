@@ -1,0 +1,24 @@
+{% extends "store/base.html" %}
+{% block title %}Finalizar compra · SmartTech Store{% endblock %}
+{% block content %}
+<section class="shell page-section">
+  <div class="page-heading"><h1>Finalizar compra</h1><a href="{% url 'cart' %}">← Volver al carrito</a></div>
+  <form method="post" class="detail-layout">
+    {% csrf_token %}
+    <input type="hidden" name="reference" value="{{ reference }}">
+    <div>
+      <fieldset><legend>¿Dónde entregamos tu pedido?</legend><div class="form-grid">{% include "store/fields.html" %}</div></fieldset>
+      <fieldset><legend>Método de pago</legend>
+        {% if stripe %}<p>Tarjeta a través de <strong>Stripe Checkout</strong> en modo de prueba.</p>
+        {% else %}<p><strong>Pago simulado.</strong> Confirma la compra para probar el flujo. No se hará ningún cobro.</p>{% endif %}
+      </fieldset>
+    </div>
+    <aside class="summary">
+      <h2>Resumen</h2>
+      {% for row in rows %}<div class="summary-row"><span>{{ row.product.name }} × {{ row.quantity }}</span><span>S/ {{ row.subtotal|floatformat:2 }}</span></div>{% endfor %}
+      <div class="summary-row total-row"><strong>Total</strong><strong>S/ {{ total|floatformat:2 }}</strong></div>
+      <button class="button button-wide" type="submit">{% if stripe %}Continuar a Stripe{% else %}Confirmar compra de prueba{% endif %} <span aria-hidden="true">→</span></button>
+    </aside>
+  </form>
+</section>
+{% endblock %}

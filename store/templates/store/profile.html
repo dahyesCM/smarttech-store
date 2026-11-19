@@ -1,0 +1,24 @@
+{% extends "store/base.html" %}
+{% block title %}Mi perfil · SmartTech Store{% endblock %}
+{% block content %}
+<section class="shell page-section">
+  <div class="profile-header">
+    <span class="avatar avatar-large" aria-hidden="true">{{ user.username|first|upper }}</span>
+    <div><h1>Hola, {% if profile %}{{ profile.full_name }}{% else %}{{ user.username }}{% endif %}</h1><p>{{ user.email|default:user.username }}</p></div>
+    <a class="button button-outline" href="{% url 'history' %}">Ver mis pedidos</a>
+  </div>
+  <div class="detail-layout">
+    <form method="post" class="form-action">
+      {% csrf_token %}
+      <fieldset><legend>Datos de entrega</legend><div class="form-grid">{% include "store/fields.html" with form=form %}</div></fieldset>
+      <button class="button" type="submit">Guardar cambios</button>
+    </form>
+    <aside class="summary">
+      <h2>Mi cuenta</h2>
+      <p>Usuario: <strong>{{ user.username }}</strong></p>
+      <p>{% if user.is_staff %}Administrador{% else %}Cliente{% endif %}</p>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button" type="submit">Cerrar sesión</button></form>
+    </aside>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "registration/account_base.html" %}
+{% block title %}Ingresar · SmartTech Store{% endblock %}
+{% block account_form %}
+<h1>Bienvenida de vuelta</h1>
+<p class="intro">Ingresa para continuar con tu compra o revisar tus pedidos.</p>
+<form method="post" class="form-action">
+  {% csrf_token %}
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+  <div class="form-grid one-column">{% include "store/fields.html" with form=form %}</div>
+  <button class="button button-wide" type="submit">Iniciar sesión <span aria-hidden="true">→</span></button>
+</form>
+{% endblock %}

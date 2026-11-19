@@ -1,0 +1,80 @@
+{% extends "store/base.html" %}
+{% load static l10n %}
+{% block content %}
+<section class="store-hero" aria-labelledby="hero-title">
+  <div class="shell hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Tienda de tecnología</p>
+      <h1 id="hero-title">Tu espacio.<br><em>Tu tecnología.</em></h1>
+      <p class="hero-description">Encuentra el equipo y los accesorios para trabajar, estudiar y crear a tu manera.</p>
+      <a class="button button-light" href="#catalogo">Explorar catálogo <span aria-hidden="true">↓</span></a>
+    </div>
+    <img class="hero-photo" src="{% static 'store/photos/hero.jpg' %}" alt="Escritorio con teclado mecánico iluminado" fetchpriority="high">
+  </div>
+</section>
+<section class="shell catalog" id="catalogo">
+  <div class="section-heading"><h2>Encuentra tu equipo</h2></div>
+  {% if products %}
+    <div class="catalog-tools" id="catalog-tools" hidden>
+      <label for="catalog-search"><span>Buscar producto</span><input id="catalog-search" type="search" placeholder="Ej. teclado"></label>
+      <label for="catalog-sort"><span>Ordenar por</span>
+        <select id="catalog-sort"><option value="name">Nombre</option><option value="price-up">Menor precio</option><option value="price-down">Mayor precio</option></select>
+      </label>
+      <span id="catalog-count" role="status"></span>
+    </div>
+    <p id="catalog-empty" hidden>No hay productos que coincidan con esa búsqueda.</p>
+  {% endif %}
+  <div class="product-grid" id="product-list">
+    {% for product in products %}
+      <article class="product-row" data-price="{{ product.item.price|unlocalize }}" data-sku="{{ product.item.sku }}">
+        <div class="product-visual">
+          {% if product.photo %}<img src="{{ product.photo }}" alt="{{ product.item.name }}" width="620" height="420" loading="lazy">
+          {% else %}<span class="product-placeholder" aria-label="Sin foto">SmartTech</span>{% endif %}
+        </div>
+        <div class="product-summary">
+          <h3>{{ product.item.name }}</h3>
+          <p>{{ product.item.description }}</p>
+        </div>
+        <strong class="product-price">S/ {{ product.item.price|floatformat:2 }}</strong>
+        <form class="add-to-cart" action="{% url 'cart-change' product.item.pk %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add">
+          {% include "store/quantity.html" with quantity=1 name=product.item.name %}
+          <button class="button" type="submit">Agregar <span aria-hidden="true">+</span></button>
+        </form>
+      </article>
+    {% empty %}<p>El catálogo aún no tiene productos disponibles.</p>{% endfor %}
+  </div>
+</section>
+<div class="features">
+  <div class="shell feature-grid">
+    <section id="analizar">
+      <p class="eyebrow">Búsqueda visual</p>
+      <h2>Busca con una foto</h2>
+      {% if user.is_authenticated %}
+        <p>Sube una imagen del producto que estás buscando. Aceptamos JPEG, PNG y WebP de hasta 5 MB.</p>
+        <form id="vision-form" action="{% url 'classify' %}" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input id="image" type="file" name="image" aria-label="Foto del producto" accept="image/jpeg,image/png,image/webp" required>
+          <button class="button" type="submit">Analizar foto</button>
+        </form>
+        <p id="vision-status" role="status"></p>
+        <ul id="predictions" class="result-list" aria-label="Clasificación"></ul>
+        <ul id="matches" class="result-list" aria-label="Coincidencias del catálogo"></ul>
+      {% else %}
+        <p>Sube una foto y encuentra productos relacionados en el catálogo.</p>
+        <a class="button button-outline" href="{% url 'login' %}?next=%2F%23analizar">Ingresar para analizar</a>
+      {% endif %}
+    </section>
+    <section id="realidad-aumentada">
+      <p class="eyebrow">SmartTech AR</p>
+      <h2>Prueba el tamaño en tu espacio</h2>
+      <p>La experiencia de realidad aumentada estará disponible mediante Unity. Ya puedes descargar los marcadores de la demo.</p>
+      <div class="text-links">
+        <a href="{% static 'store/smarttech-marker.png' %}" download>Marcador del teclado ↓</a>
+        <a href="{% static 'store/laptop-marker.png' %}" download>Marcador de la laptop ↓</a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

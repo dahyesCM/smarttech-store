@@ -1,0 +1,16 @@
+{% extends "store/base.html" %}
+{% block title %}Compra #{{ purchase.pk }} · SmartTech Store{% endblock %}
+{% block content %}
+<section class="shell page-section receipt">
+  {% if purchase.payment == "pending" %}
+    <h1>Pago pendiente</h1><p>Estamos esperando la confirmación de Stripe.</p>
+    <a class="button" href="{% url 'receipt' purchase.reference %}">Actualizar estado</a>
+  {% else %}
+    <span class="success-icon" aria-hidden="true">✓</span>
+    <h1>¡Compra exitosa!</h1>
+    <p>Guardamos la compra <strong>#{{ purchase.pk }}</strong> en tu historial. {{ purchase.get_payment_display }}.</p>
+    <div class="receipt-address"><strong>Dirección de entrega</strong><p>{{ purchase.full_name }}<br>{{ purchase.address }}<br>{{ purchase.city }}, {{ purchase.country }}<br>{{ purchase.phone }}</p><strong>Total: S/ {{ purchase.total|floatformat:2 }}</strong></div>
+    <div class="receipt-actions"><a class="button" href="{% url 'history' %}">Ver mis pedidos</a><a class="button button-outline" href="{% url 'home' %}#catalogo">Volver al catálogo</a></div>
+  {% endif %}
+</section>
+{% endblock %}

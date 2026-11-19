@@ -1,0 +1,20 @@
+{% extends "store/base.html" %}
+{% block title %}Mis pedidos · SmartTech Store{% endblock %}
+{% block content %}
+<section class="shell page-section" id="pedidos">
+  <div class="page-heading"><h1>Mis pedidos</h1><a href="{% url 'profile' %}">← Mi perfil</a></div>
+  {% if not purchases and not older %}
+    <div class="empty-state"><h2>Aún no tienes pedidos</h2><a class="button" href="{% url 'home' %}#catalogo">Explorar catálogo</a></div>
+  {% endif %}
+  {% for purchase in purchases %}
+    <details class="history-item" {% if forloop.first %}open{% endif %}>
+      <summary><span><strong>Compra #{{ purchase.pk }}</strong><small>{{ purchase.created_at|date:"d M Y · H:i" }} · {{ purchase.get_payment_display }}</small></span><strong>S/ {{ purchase.total|floatformat:2 }}</strong></summary>
+      <ul class="result-list">{% for order in purchase.orders.all %}<li><span>{{ order.product.name }} × {{ order.quantity }}</span><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></li>{% endfor %}</ul>
+      <p class="history-address">Entrega en {{ purchase.address }}, {{ purchase.city }}, {{ purchase.country }}</p>
+    </details>
+  {% endfor %}
+  {% for order in older %}
+    <article class="legacy-order"><div><strong>Pedido #{{ order.pk }} · {{ order.product.name }} × {{ order.quantity }}</strong><p>{{ order.created_at|date:"d M Y" }} · S/ {{ order.total|floatformat:2 }}</p></div><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></article>
+  {% endfor %}
+</section>
+{% endblock %}

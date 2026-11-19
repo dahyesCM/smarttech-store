@@ -1,0 +1,33 @@
+{% extends "store/base.html" %}
+{% block title %}Carrito · SmartTech Store{% endblock %}
+{% block content %}
+<section class="shell page-section">
+  <div class="page-heading"><h1>Tu carrito</h1><a href="{% url 'home' %}#catalogo">Seguir comprando →</a></div>
+  {% if rows %}
+  <div class="detail-layout">
+    <div class="cart-rows">
+      {% for row in rows %}
+        <article class="cart-row">
+          {% if row.photo %}<img src="{{ row.photo }}" alt="" width="120" height="90">{% endif %}
+          <div><h2>{{ row.product.name }}</h2><p>S/ {{ row.product.price|floatformat:2 }} por unidad</p></div>
+          <strong data-subtotal>S/ {{ row.subtotal|floatformat:2 }}</strong>
+          <form class="cart-row-controls" action="{% url 'cart-change' row.product.pk %}" method="post">
+            {% csrf_token %}
+            {% include "store/quantity.html" with quantity=row.quantity name=row.product.name %}
+            <button class="text-button" name="action" value="update">Actualizar</button>
+            <button class="text-button remove-button" name="action" value="remove" formnovalidate>Quitar</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+    <aside class="summary">
+      <h2>Resumen del pedido</h2>
+      <div class="summary-row"><span>Productos</span><strong data-cart-total>S/ {{ total|floatformat:2 }}</strong></div>
+      <a class="button button-wide" href="{% url 'checkout' %}">Continuar compra <span aria-hidden="true">→</span></a>
+    </aside>
+  </div>
+  {% else %}
+    <div class="empty-state"><h2>Tu carrito está vacío</h2><p>Explora el catálogo para agregar tus productos.</p><a class="button" href="{% url 'home' %}#catalogo">Ver catálogo</a></div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "registration/account_base.html" %}
+{% block title %}Crear cuenta · SmartTech Store{% endblock %}
+{% block account_form %}
+<h1>Crea tu cuenta</h1>
+<p class="intro">Registra tus datos para comprar y seguir tus pedidos.</p>
+<form method="post" class="form-action">
+  {% csrf_token %}
+  <fieldset><legend>Datos de acceso</legend><div class="form-grid">{% include "store/fields.html" with form=form %}</div></fieldset>
+  <fieldset><legend>Datos de entrega</legend><div class="form-grid">{% include "store/fields.html" with form=shipping %}</div></fieldset>
+  <button class="button button-wide" type="submit">Crear mi cuenta <span aria-hidden="true">→</span></button>
+</form>
+{% endblock %}
